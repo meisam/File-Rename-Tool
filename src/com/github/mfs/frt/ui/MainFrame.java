@@ -35,6 +35,10 @@ import javax.swing.JTextField;
 public class MainFrame extends JFrame {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/**
    * 
    */
 	private JPanel browsePanel;
@@ -54,13 +58,14 @@ public class MainFrame extends JFrame {
 	 */
 	public MainFrame() throws HeadlessException {
 		super();
-		setLayout(new BorderLayout());
-		getContentPane().add(getBrowsePanel(), BorderLayout.NORTH);
-		getContentPane().add(getFilesListPanel(), BorderLayout.CENTER);
-		getContentPane().add(getActionsPanel(), BorderLayout.SOUTH);
+		this.setLayout(new BorderLayout());
+		this.getContentPane().add(this.getBrowsePanel(), BorderLayout.NORTH);
+		this.getContentPane()
+				.add(this.getFilesListPanel(), BorderLayout.CENTER);
+		this.getContentPane().add(this.getActionsPanel(), BorderLayout.SOUTH);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		pack();
-		setVisible(true);
+		this.pack();
+		this.setVisible(true);
 	}
 
 	/**
@@ -69,8 +74,8 @@ public class MainFrame extends JFrame {
 	private JPanel getBrowsePanel() {
 		if (this.browsePanel == null) {
 			this.browsePanel = new JPanel();
-			this.browsePanel.add(getFileNameField());
-			this.browsePanel.add(getBrowseButtton());
+			this.browsePanel.add(this.getFileNameField());
+			this.browsePanel.add(this.getBrowseButtton());
 		}
 		return this.browsePanel;
 	}

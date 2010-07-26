@@ -30,11 +30,11 @@ import com.github.mfs.frt.ui.MainFrame;
  */
 public class Application {
 
-  /**
-   * @param args
-   */
-  public static void main(final String[] args) {
-    new MainFrame();
-  }
+	/**
+	 * @param args
+	 */
+	public static void main(final String[] args) {
+		new MainFrame();
+	}
 
 }
