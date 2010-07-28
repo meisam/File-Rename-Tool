@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="deploy-project" name="Refresher">
+	<property environment="env" />
+	<property name="debuglevel" value="source,lines,vars" />
+	<property name="target" value="1.6" />
+	<property name="source" value="1.6" />
+	<property name="project.src.dir" value="${basedir}/src" />
+	<property name="project.bin.dir" value="${basedir}/bin" />
+	<property name="project.dist.dir" value="${basedir}/dist" />
+	<property name="project.mainclass" value="com.github.mfs.frt.Application" />
+	<property name="project.releasename" value="file-rename-tool.jar" />
+
+	<path id="project.classpath">
+		<pathelement location="bin" />
+	</path>
+
+	<!-- ========== clean  ========== -->
+	<target name="clean">
+		<delete dir="${project.bin.dir}" />
+		<delete dir="${project.dist.dir}" />
+	</target>
+
+	<!-- ========== init  ========== -->
+	<target name="init">
+		<mkdir dir="bin" />
+		<mkdir dir="dist" />
+		<copy includeemptydirs="false" todir="bin">
+			<fileset dir="src">
+				<exclude name="**/*.launch" />
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- ========== build-project  ========== -->
+	<target name="build-project" depends="init">
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<javac debug="false" destdir="bin" source="${source}" target="${target}">
+			<src path="src" />
+			<classpath refid="project.classpath" />
+		</javac>
+	</target>
+	
+	<!-- ========== deploy-project  ========== -->
+	<target name="deploy-project" depends="build-project">
+		<echo message="$making the jar file" />
+		<jar destfile="${basedir}/dist/${project.releasename}">
+			<fileset dir="bin">
+			</fileset>
+			<manifest>
+				<attribute name="Main-Class" value="${project.mainclass}" />
+			</manifest>
+		</jar>
+	</target>
+</project>
