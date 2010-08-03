@@ -22,30 +22,39 @@
 package com.github.mfs.frt.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.Collection;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.ListModel;
+
+import com.github.mfs.frt.Application;
 
 /**
  * @author Meisam Fathi
  * @version 0.1, July 26, 2010
  */
-public class MainFrame extends JFrame {
+public class GraphicUI extends JFrame implements IApplicationUI {
 
   /**
 	 * 
 	 */
   private static final long serialVersionUID = 1L;
+
+  /**
+   * 
+   */
+  private final Application application;
 
   /**
    * 
@@ -93,28 +102,71 @@ public class MainFrame extends JFrame {
   private JTextField postfixField;
 
   /**
-	 * 
-	 */
+   * 
+   */
   private JButton exportButtton;
 
+  /**
+	 * 
+	 */
+  private JButton renameButtton;
+
+  /**
+   * 
+   */
   private JLabel fileNameLabel;
 
+  /**
+   * 
+   */
   private JScrollPane scrollPane;
 
+  /**
+   * 
+   */
   private JList filesList;
 
+  /**
+   * 
+   */
   private DefaultListModel filesListDataModel;
+
+  /**
+   * 
+   */
+  private JFileChooser fileChooser;
+
+  /**
+   * 
+   */
+  private BrowseButttonActionListener browseButttonActionListener;
+
+  /**
+   * 
+   */
+  private RenameButttonActionListener renameButttonActionListener;
+
+  /**
+   * 
+   */
+  private ExportButttonActionListener exportButttonActionListener;
+
+  /**
+   * 
+   */
+  private File workingDirectory;
 
   /**
    * @throws HeadlessException
    */
-  public MainFrame() throws HeadlessException {
+  public GraphicUI(final Application application) throws HeadlessException {
     super();
+    this.application = application;
     this.setLayout(new BorderLayout());
     this.getContentPane().add(this.getBrowsePanel(), BorderLayout.NORTH);
     this.getContentPane().add(this.getFilesListPanel(), BorderLayout.CENTER);
     this.getContentPane().add(this.getActionsPanel(), BorderLayout.SOUTH);
-    this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.pack();
     this.setVisible(true);
   }
@@ -148,8 +200,17 @@ public class MainFrame extends JFrame {
     if (this.browseButtton == null) {
       this.browseButtton = new JButton();
       this.browseButtton.setText("Browse...");
+      this.browseButtton.addActionListener(this.getBrownButtonActionListener());
     }
     return this.browseButtton;
+  }
+
+  private ActionListener getBrownButtonActionListener() {
+    if (this.browseButttonActionListener == null) {
+      this.browseButttonActionListener =
+          new BrowseButttonActionListener(GraphicUI.this);
+    }
+    return this.browseButttonActionListener;
   }
 
   /**
@@ -159,7 +220,7 @@ public class MainFrame extends JFrame {
     if (this.filesListPanel == null) {
       this.filesListPanel = new JPanel();
       this.filesListPanel.setLayout(new BorderLayout());
-      this.filesListPanel.add(getScrollPane(), BorderLayout.CENTER);
+      this.filesListPanel.add(this.getScrollPane(), BorderLayout.CENTER);
     }
     return this.filesListPanel;
   }
@@ -168,14 +229,14 @@ public class MainFrame extends JFrame {
     if (this.scrollPane == null) {
       this.scrollPane = new JScrollPane();
       this.scrollPane.setPreferredSize(new Dimension(600, 500));
-      this.scrollPane.getViewport().add(getFilesList());
+      this.scrollPane.getViewport().add(this.getFilesList());
     }
     return this.scrollPane;
   }
 
   private JList getFilesList() {
     if (this.filesList == null) {
-      this.filesList = new JList(getFilesListDataModel());
+      this.filesList = new JList(this.getFilesListDataModel());
     }
     return this.filesList;
   }
@@ -197,14 +258,33 @@ public class MainFrame extends JFrame {
   private JPanel getActionsPanel() {
     if (this.actionsPanel == null) {
       this.actionsPanel = new JPanel();
-      this.actionsPanel.add(getExportButton());
-      this.actionsPanel.add(getPrefixField());
-      this.actionsPanel.add(getPrefixLabel());
-      this.actionsPanel.add(getFileNameLabel());
-      this.actionsPanel.add(getPostLabel());
-      this.actionsPanel.add(getPostfixField());
+      this.actionsPanel.add(this.getExportButton());
+      this.actionsPanel.add(this.getPrefixField());
+      this.actionsPanel.add(this.getPrefixLabel());
+      this.actionsPanel.add(this.getFileNameLabel());
+      this.actionsPanel.add(this.getPostLabel());
+      this.actionsPanel.add(this.getPostfixField());
+      this.actionsPanel.add(this.getRenameButton());
     }
     return this.actionsPanel;
+  }
+
+  private JButton getExportButton() {
+    if (this.exportButtton == null) {
+      this.exportButtton = new JButton();
+      this.exportButtton.setText("Export...");
+      this.exportButtton
+          .addActionListener(this.getExportButtonActionListener());
+    }
+    return this.exportButtton;
+  }
+
+  private ActionListener getExportButtonActionListener() {
+    if (this.exportButttonActionListener == null) {
+      this.exportButttonActionListener =
+          new ExportButttonActionListener(GraphicUI.this);
+    }
+    return this.exportButttonActionListener;
   }
 
   /**
@@ -257,12 +337,82 @@ public class MainFrame extends JFrame {
     return this.postfixField;
   }
 
-  private JButton getExportButton() {
-    if (this.exportButtton == null) {
-      this.exportButtton = new JButton();
-      this.exportButtton.setText("Export...");
+  private JButton getRenameButton() {
+    if (this.renameButtton == null) {
+      this.renameButtton = new JButton();
+      this.renameButtton.setText("Rename...");
+      this.renameButtton
+          .addActionListener(this.getRenameButtonActionListener());
     }
-    return this.exportButtton;
+    return this.renameButtton;
+  }
+
+  private ActionListener getRenameButtonActionListener() {
+    if (this.renameButttonActionListener == null) {
+      this.renameButttonActionListener =
+          new RenameButttonActionListener(GraphicUI.this);
+    }
+    return this.renameButttonActionListener;
+  }
+
+  @Override
+  public void showFileChooser() {
+    final int popDownStatus =
+        this.getFileChooser().showOpenDialog(GraphicUI.this);
+    switch (popDownStatus) {
+    case JFileChooser.CANCEL_OPTION:
+      break;
+    case JFileChooser.ERROR_OPTION:
+      throw new ShowDirectoryChooserException();
+      // break; // no break needed
+    case JFileChooser.APPROVE_OPTION:
+      final File selectedFile = this.getFileChooser().getSelectedFile();
+      this.changeDirectory(selectedFile);
+      break;
+    default:
+      throw new UnknownFileChooseOption();
+    }
+
+  }
+
+  private void changeDirectory(final File directory) {
+    this.workingDirectory = directory;
+    final Collection<File> listAllFiles =
+        this.application.listAllFiles(directory);
+    this.getFilesListDataModel().removeAllElements();
+    for (final File file : listAllFiles) {
+      this.getFilesListDataModel().addElement(file);
+    }
+  }
+
+  private JFileChooser getFileChooser() {
+    if (this.fileChooser == null) {
+      this.fileChooser = new JFileChooser();
+      this.fileChooser.setMultiSelectionEnabled(false);
+      this.fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+    }
+    return this.fileChooser;
+  }
+
+  @Override
+  public File getWorkingDirectory() {
+    return this.workingDirectory;
+  }
+
+  @Override
+  public void exportFiles() {
+    final Collection<File> allFiles =
+        this.application.listAllFiles(this.workingDirectory);
+    this.application.exportFiles(allFiles);
+  }
+
+  @Override
+  public void renameFiles() {
+    final Collection<File> allFiles =
+        this.application.listAllFiles(this.workingDirectory);
+    final String prefix = this.getPrefixField().getText();
+    final String postfix = this.getPostfixField().getText();
+    this.application.renameAll(allFiles, prefix, postfix);
   }
 
 }

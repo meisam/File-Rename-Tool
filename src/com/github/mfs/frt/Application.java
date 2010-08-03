@@ -21,7 +21,14 @@
 
 package com.github.mfs.frt;
 
-import com.github.mfs.frt.ui.MainFrame;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.Iterator;
+
+import com.github.mfs.frt.ui.GraphicUI;
+import com.github.mfs.frt.ui.IApplicationUI;
 
 /**
  * The start point of the application
@@ -31,11 +38,61 @@ import com.github.mfs.frt.ui.MainFrame;
  */
 public class Application {
 
+  private IApplicationUI ui;
+
+  private void setUi(final IApplicationUI ui) {
+    this.ui = ui;
+  }
+
+  public Collection<File> renameAll(final Collection<File> files, final String prefix,
+      final String postFix) {
+    return FileSystemUtility.renameAll(files, prefix, postFix);
+  }
+
+  public Collection<File> listAllFiles(final File directory) {
+    return FileSystemUtility.listAllFile(directory);
+  }
+
+  public void exportFiles(final Collection<File> allFiles) {
+    try {
+      final String fileName =
+          this.ui.getWorkingDirectory() + File.separator
+              + "all-files-in-subdirs.csv";
+      final File file = new File(fileName);
+      PrintWriter writer;
+      writer = new PrintWriter(file);
+      final Iterator<File> filesIterator = allFiles.iterator();
+      int count = 1;
+      while (filesIterator.hasNext()) {
+        final File currentFile = filesIterator.next();
+        writer.print(count);
+        writer.print(",");
+        writer.print(currentFile.getName());
+        writer.print(", ");
+        writer.print(currentFile.getAbsolutePath());
+        writer.println();
+
+        count++;
+      }
+
+      writer.flush();
+      writer.close();
+
+    } catch (final FileNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
+
+  // ======================== MAIN =============================
+
   /**
    * @param args
    */
   public static void main(final String[] args) {
-    new MainFrame();
+    final Application application = new Application();
+    final GraphicUI ui = new GraphicUI(application);
+    application.setUi(ui);
   }
 
 }
